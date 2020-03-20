@@ -7,3 +7,5 @@ log
 ._parse_cobalt.py/
 .DS_Store
 templates/.*
+dist/
+node_modules/
