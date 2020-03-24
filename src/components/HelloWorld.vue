@@ -13,7 +13,14 @@
         </h1>
 
         <p class="subheading font-weight-regular mb-3">
-          BetterPlanner is a course catalog search used to help course planning provide more details for courses at UofT. Search up courses such as <a href="search?course=CSC108H5">CSC108H5</a> to find courses that depend on it, such as <a href="search?course=CSC148H5">CSC148H5</a> and <a href="search?course=BIO458H5">BIO458H5</a>. To find courses that you will consider taking during the semester, please look at the academic calender for your program.
+          BetterPlanner is a course catalog search used to help course planning
+          provide more details for courses at UofT. Search up courses such as
+          <a href="search?course=CSC108H5">CSC108H5</a> to find courses that
+          depend on it, such as
+          <a href="search?course=CSC148H5">CSC148H5</a> and
+          <a href="search?course=BIO458H5">BIO458H5</a>. To find courses that
+          you will consider taking during the semester, please look at the
+          academic calender for your program.
         </p>
       </v-col>
 
@@ -33,7 +40,13 @@
             {{ eco.text }}
           </a> -->
           <p class="subheading font-weight-regular mb-3">
-            This is a project contributed by <a href="https://github.com/luu-alex">Alex Luu</a>, <a href="https://www.ali-raza.me/">Ali Raza</a> and <a href="https://bitbucket.org/lealexchang/">Alex Chang</a>. Checkout on <a href="https://github.com/BetterPlanner">GitHub</a>. Reach out for any questions or further discussions: alex.luu@mail.utoronto.ca.
+            This is a project contributed by
+            <a href="https://github.com/luu-alex">Alex Luu</a>,
+            <a href="https://www.ali-raza.me/">Ali Raza</a> and
+            <a href="https://bitbucket.org/lealexchang/">Alex Chang</a>.
+            Checkout on <a href="https://github.com/BetterPlanner">GitHub</a>.
+            Reach out for any questions or further discussions:
+            alex.luu@mail.utoronto.ca.
           </p>
         </v-row>
       </v-col>

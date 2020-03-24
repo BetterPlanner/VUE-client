@@ -1,11 +1,13 @@
 <template>
   <v-app>
     <v-app-bar app clipped-left>
-      <img style="padding-right:15px" src="./assets/school.png"/>
-      <v-toolbar-title ><a class="title" :href="`/`">Better Planner</a></v-toolbar-title>
-      
+      <img style="padding-right:15px" src="./assets/school.png" />
+      <v-toolbar-title
+        ><a class="title" :href="`/`">Better Planner</a></v-toolbar-title
+      >
+
       <v-spacer></v-spacer>
-      
+
       <v-switch
         style="padding:15px; padding-top: 40px"
         :label="`Dark Mode`"
