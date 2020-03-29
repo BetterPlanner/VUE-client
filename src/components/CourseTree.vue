@@ -2,7 +2,7 @@
   <v-card>
     <v-toolbar color="primary" dark flat>
       <v-icon>mdi-school</v-icon>
-      <v-toolbar-title class="pa-4">
+      <v-toolbar-title class="pa-4" v-if="currentCourse">
         Course Tree for {{ this.currentCourse }}</v-toolbar-title
       >
       <v-spacer></v-spacer>
@@ -83,7 +83,11 @@
         <v-card v-else :key="1" class="pt-6 mx-auto" flat max-width="900">
           <v-card-text v-if="getData && getData.length > 0">
             <h3 class="headline mb-2">
-              <a :href="`/view?course=${getData[0].code}`" target="_blank"
+              <a
+                :href="
+                  `https://student.utm.utoronto.ca/calendar/OpenCourse.pl?Course=${getData[0].code}`
+                "
+                target="_blank"
                 >{{ getData[0].code }} - {{ getData[0].name }}</a
               >
             </h3>
