@@ -246,7 +246,7 @@ export default {
       },
       skip() {
         return !this.currentCourse;
-      },
+      }
       // update(data) {
       //   // console.log(data.getTree.code)
       //   if (!data.getTree.hasChildren) {
@@ -336,8 +336,10 @@ export default {
     }
   },
   mounted() {
-    this.dosearch = this.$route.query.course.toUpperCase();
-    this.currentCourse = this.$route.query.course.toUpperCase();
+    if (this.$route.query.course) {
+      this.dosearch = this.$route.query.course.toUpperCase();
+      this.currentCourse = this.$route.query.course.toUpperCase();
+    }
   },
   methods: {
     async queryData(item) {
