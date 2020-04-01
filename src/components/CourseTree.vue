@@ -20,6 +20,7 @@
         item-text="name"
         no-filter
         item-value="code"
+        item-key="code"
         placeholder="Start typing a course code to search"
         return-object
       >
@@ -54,12 +55,15 @@
           ></v-progress-circular>
           <v-treeview
             v-else
-            :items="tree"
+            :items="items"
+            :load-children="queryData"
             activatable
             :active.sync="active"
             :rounded="true"
             transition
-            item-key="name"
+            item-text="code"
+            item-key="code"
+            :return-object="true"
           ></v-treeview>
         </v-card-text>
       </v-col>
@@ -180,8 +184,8 @@
 </template>
 
 <script>
-import axios from "axios";
 import gql from "graphql-tag";
+
 export default {
   apollo: {
     getCourse: {
@@ -225,7 +229,53 @@ export default {
       skip() {
         return !this.dosearch;
       }
+    },
+    getTree: {
+      query: gql`
+        query getTree($search: String!) {
+          getTree(search: $search) {
+            code
+            hasChildren
+          }
+        }
+      `,
+      variables() {
+        return {
+          search: this.currentCourse
+        };
+      },
+      skip() {
+        return !this.currentCourse;
+      },
+      // update(data) {
+      //   // console.log(data.getTree.code)
+      //   if (!data.getTree.hasChildren) {
+      //     this.courses = null;
+      //     console.log(data.getTree.code);
+      //   }
+      // }
     }
+    // getTreeInner: {
+    //   query: gql`
+    //     query getTree($search: String!) {
+    //       getTreeInner: getTree(search: $search) {
+    //         code
+    //         children {
+    //           code
+    //           hasChildren
+    //         }
+    //       }
+    //     }
+    //   `,
+    //   variables() {
+    //     return {
+    //       search: this.innerSearch
+    //     };
+    //   },
+    //   skip() {
+    //     return true;
+    //   }
+    // }
   },
   data: () => ({
     currentCourse: null,
@@ -234,15 +284,18 @@ export default {
     tree: [],
     model: null,
     search: null,
-    dosearch: null
+    dosearch: null,
+    innerSearch: null,
+    open: [],
+    courses: []
   }),
   computed: {
     selected() {
       if (!this.active.length) return undefined;
 
-      const id = this.active[0];
+      const cur_active = this.active[0];
 
-      return id;
+      return cur_active.code;
     },
     fields() {
       if (!this.model) return [];
@@ -252,40 +305,87 @@ export default {
           value: this.model[key] || "n/a"
         };
       });
+    },
+    items() {
+      if (this.getTree && this.getTree.hasChildren) {
+        return [
+          {
+            code: this.currentCourse,
+            children: this.courses
+          }
+        ];
+      } else {
+        return [
+          {
+            code: this.currentCourse
+          }
+        ];
+      }
     }
   },
   watch: {
     selected(newValue) {
       newValue ? (this.dosearch = newValue) : null;
     },
-    $route: "fetchData",
     model: function(val) {
       if (val) {
         this.dosearch = val.code;
-        this.fetchData(val.code);
+        this.currentCourse = val.code;
+        this.courses = [];
       }
     }
   },
-  created() {
-    this.fetchData(this.$route.query.course);
+  mounted() {
+    this.dosearch = this.$route.query.course.toUpperCase();
+    this.currentCourse = this.$route.query.course.toUpperCase();
   },
   methods: {
-    fetchData(val) {
-      this.loading = true;
-      this.currentCourse = null;
-      axios
-        .get(`http://localhost:8080/api/tree?course=` + val)
-        .then(response => {
-          this.loading = false;
-          this.currentCourse = val.toUpperCase();
-          this.dosearch = val.toUpperCase();
-          this.search = "";
-          this.tree = [response.data];
-        })
-        .catch(e => {
-          this.errors = e.toString();
+    async queryData(item) {
+      if (item) {
+        this.innerSearch = item.code;
+        const response = await this.$apollo.query({
+          query: gql`
+            query getTree($search: String!) {
+              getTree(search: $search) {
+                code
+                children {
+                  code
+                  hasChildren
+                }
+              }
+            }
+          `,
+          variables: {
+            search: this.innerSearch
+          }
         });
+        // if(response.data.getTree.children)
+        var newTree = response.data.getTree.children;
+        newTree.forEach(element => {
+          if (element.hasChildren) {
+            element.children = [];
+          }
+        });
+        item.children.push(...newTree);
+      }
     }
+    // fetchData(val) {
+    //   this.loading = true;
+    //   // this.currentCourse = null;
+    //   axios
+    //     .get(`http://localhost:8080/api/tree?course=` + val)
+    //     .then(response => {
+    //       this.loading = false;
+    //       // this.currentCourse = val.toUpperCase();
+    //       // this.dosearch = val.toUpperCase();
+    //       // this.search = "";
+    //       // console.log(response)
+    //       this.tree = [response.data];
+    //     })
+    //     .catch(e => {
+    //       this.errors = e.toString();
+    //     });
+    // }
   }
 };
 </script>
