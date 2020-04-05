@@ -1,18 +1,20 @@
 <template>
-  <v-card>
-    <v-toolbar color="primary" dark flat>
-      <v-icon>mdi-school</v-icon>
-      <v-toolbar-title class="pa-4" v-if="currentCourse">
-        Course Tree for {{ this.currentCourse }}</v-toolbar-title
-      >
-      <v-spacer></v-spacer>
+  <v-card
+    class="mx-auto"
+    max-width="1600px"
+    min-height="500px"
+    flat
+    :elevation="8"
+  >
+    <v-toolbar color="primary" dark flat tile>
+      <v-icon style="padding-right: 14px">mdi-school</v-icon>
       <v-autocomplete
-        flat
+        autofocus
         solo-inverted
+        clearable
         hide-details
         prepend-inner-icon="mdi-magnify"
         label="Search"
-        class="hidden-sm-and-down"
         v-model="model"
         :items="getCourse"
         :loading="$apollo.loading"
@@ -21,7 +23,7 @@
         no-filter
         item-value="code"
         item-key="code"
-        placeholder="Start typing a course code to search"
+        placeholder="Start by course code or title"
         return-object
       >
         <template v-slot:no-data>
@@ -45,8 +47,38 @@
         </template>
       </v-autocomplete>
     </v-toolbar>
-    <v-row class="pa-4" justify="space-between">
-      <v-col cols="2">
+    <v-row class="text-center" v-if="!getData">
+      <v-col class="mb-4">
+        <v-img
+          :src="require('../assets/school.png')"
+          class="my-3"
+          contain
+          height="40"
+        />
+        <h1 class="display-2 font-weight-bold mb-3">
+          Better Planner UofT
+        </h1>
+      </v-col>
+    </v-row>
+    <v-row class="mb-6" justify="center" no-gutters v-if="!getData">
+      <v-col class="text-center mr-5 mb-3" cols="8">
+        Better Planner is a course catalog search used to help withcourse
+        planning, and provide more details for courses at UofT. Search up
+        courses such as
+        <a href="/?course=CSC108H5">CSC108H5</a> to find courses that depend on
+        it, such as <a href="/?course=CSC148H5">CSC148H5</a> and
+        <a href="/?course=BIO458H5">BIO458H5</a>. To find courses that you will
+        consider taking during the semester, please look at the academic
+        calender for your program.
+      </v-col>
+    </v-row>
+    <v-row
+      class="pa-4"
+      justify="space-between"
+      fluid
+      v-if="getData && getData.length > 0"
+    >
+      <v-col cols="3" class="hidden-sm-and-down">
         <v-card-text>
           <v-progress-circular
             v-if="loading"
@@ -67,7 +99,7 @@
           ></v-treeview>
         </v-card-text>
       </v-col>
-      <v-divider vertical></v-divider>
+      <v-divider vertical class="hidden-sm-and-down"></v-divider>
       <v-col class="d-flex text-center">
         <v-card
           :key="1"
@@ -102,7 +134,7 @@
             class="text-left"
             tag="v-card-text"
           >
-            <v-col class="text-left mr-1 mb-2" tag="strong" cols="2"
+            <v-col class="text-left mr-1 mb-2" tag="strong" cols="4"
               >Description:</v-col
             >
             <v-col>{{ getData[0].description }}</v-col>
@@ -116,7 +148,7 @@
             tag="v-card-text"
             v-if="getData && getData.length > 0"
           >
-            <v-col class="text-left mr-1 mb-2" tag="strong" cols="2"
+            <v-col class="text-left mr-1 mb-2" tag="strong" cols="4"
               >Campus:</v-col
             >
             <v-col>{{ getData[0].campus }}</v-col>
@@ -131,7 +163,7 @@
             <v-col
               class="text-left mr-1 mb-2"
               tag="strong"
-              cols="2"
+              cols="4"
               v-if="
                 getData &&
                   getData.length > 0 &&
@@ -150,7 +182,7 @@
                 getData[0].prerequisites.length > 0
             "
           >
-            <v-col class="text-left mr-1 mb-2" tag="strong" cols="2"
+            <v-col class="text-left mr-1 mb-2" tag="strong" cols="4"
               >Prerequisites:</v-col
             >
             <v-col>{{ getData[0].prerequisites }}</v-col>
@@ -161,9 +193,9 @@
             v-if="getData && getData.length > 0 && getData[0].required_for"
           >
             <v-col
-              class="text-left mr-1 mb-2"
+              class="text-left mr-0 mb-0"
               tag="strong"
-              cols="2"
+              cols="4"
               v-if="
                 getData &&
                   getData.length > 0 &&
@@ -171,14 +203,43 @@
               "
               >Necessary for:</v-col
             >
+          </v-row>
+          <v-row class="mb-6 ml-12" no-gutters>
             <v-col
-              ><div v-for="item of getData[0].required_for" v-bind:key="item">
-                <a :href="`/tree?course=${item}`">{{ item }}</a>
-              </div></v-col
+              cols="4"
+              class="text-center mr-0 mb-1"
+              v-for="item of getData[0].required_for"
+              v-bind:key="item"
             >
+              <v-card class="pa-3" tile>
+                <a :href="`/?course=${item}`">{{ item }}</a>
+              </v-card>
+            </v-col>
           </v-row>
         </v-card>
       </v-col>
+    </v-row>
+    <v-divider class="hidden-md-and-up"></v-divider>
+    <v-row class="hidden-md-and-up">
+      <v-card-text>
+        <v-progress-circular
+          v-if="loading"
+          indeterminate
+          color="primary"
+        ></v-progress-circular>
+        <v-treeview
+          v-else
+          :items="items"
+          :load-children="queryData"
+          activatable
+          :active.sync="active"
+          :rounded="true"
+          transition
+          item-text="code"
+          item-key="code"
+          :return-object="true"
+        ></v-treeview>
+      </v-card-text>
     </v-row>
   </v-card>
 </template>
@@ -247,35 +308,7 @@ export default {
       skip() {
         return !this.currentCourse;
       }
-      // update(data) {
-      //   // console.log(data.getTree.code)
-      //   if (!data.getTree.hasChildren) {
-      //     this.courses = null;
-      //     console.log(data.getTree.code);
-      //   }
-      // }
     }
-    // getTreeInner: {
-    //   query: gql`
-    //     query getTree($search: String!) {
-    //       getTreeInner: getTree(search: $search) {
-    //         code
-    //         children {
-    //           code
-    //           hasChildren
-    //         }
-    //       }
-    //     }
-    //   `,
-    //   variables() {
-    //     return {
-    //       search: this.innerSearch
-    //     };
-    //   },
-    //   skip() {
-    //     return true;
-    //   }
-    // }
   },
   data: () => ({
     currentCourse: null,
@@ -371,23 +404,6 @@ export default {
         item.children.push(...newTree);
       }
     }
-    // fetchData(val) {
-    //   this.loading = true;
-    //   // this.currentCourse = null;
-    //   axios
-    //     .get(`http://localhost:8080/api/tree?course=` + val)
-    //     .then(response => {
-    //       this.loading = false;
-    //       // this.currentCourse = val.toUpperCase();
-    //       // this.dosearch = val.toUpperCase();
-    //       // this.search = "";
-    //       // console.log(response)
-    //       this.tree = [response.data];
-    //     })
-    //     .catch(e => {
-    //       this.errors = e.toString();
-    //     });
-    // }
   }
 };
 </script>

@@ -1,24 +1,37 @@
 <template>
   <v-app>
     <v-app-bar app clipped-left>
-      <img style="padding-right:15px" src="./assets/school.png" />
       <v-toolbar-title
-        ><a class="title" :href="`/`">Better Planner</a></v-toolbar-title
+        ><a class="title" :href="`/`">Better Planner UofT</a></v-toolbar-title
       >
-
       <v-spacer></v-spacer>
-
-      <v-switch
-        style="padding:15px; padding-top: 40px"
-        :label="`Dark Mode`"
-        v-model="$vuetify.theme.dark"
-        ref="darkSwitch"
-        @change="onDarkModeChange"
-      ></v-switch>
+      <v-btn @click="onDarkModeChange" icon>
+        <v-icon v-if="$vuetify.theme.dark" color="grey"
+          >mdi-lightbulb-outline</v-icon
+        >
+        <v-icon v-else color="blue">mdi-lightbulb-on-outline</v-icon>
+      </v-btn>
     </v-app-bar>
     <v-content>
       <router-view></router-view>
     </v-content>
+    <v-footer>
+      <v-card flat tile width="100%" class="lighten-1">
+        <v-card-text class="text-center">
+          <span
+            >This project is contributed by
+            <a href="https://github.com/luu-alex">Alex Luu</a>,
+            <a href="https://www.ali-raza.me/">Ali Raza</a>. Checkout on
+            <a href="https://github.com/BetterPlanner">GitHub</a>.
+          </span>
+          <v-spacer></v-spacer>
+          <span
+            >{{ new Date().getFullYear() }} —
+            <strong>Better Planner UofT</strong></span
+          >
+        </v-card-text>
+      </v-card>
+    </v-footer>
   </v-app>
 </template>
 
@@ -30,14 +43,14 @@ export default {
   }),
   methods: {
     onDarkModeChange() {
-      window.localStorage.setItem(
-        "isDark",
-        this.$refs.darkSwitch.appIsDark ? 1 : 0
-      );
+      this.$vuetify.theme.dark
+        ? (this.$vuetify.theme.dark = false)
+        : (this.$vuetify.theme.dark = true);
+      window.localStorage.setItem("isDark", this.$vuetify.theme.dark ? 1 : 0);
     }
   },
   mounted: function() {
-    this.$refs.darkSwitch.$vuetify.theme.dark =
+    this.$vuetify.theme.dark =
       window.localStorage.getItem("isDark") == 1 ? true : false;
   }
 };
